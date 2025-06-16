@@ -5,7 +5,7 @@ import banner from '/public/assests/img/imageBanner1.jpg'
 
 export default function HeroSection() {
   return (
-    <section className="bg-gradient-to-r from-orange-500 to-red-600 text-white min-h-screen flex items-center">
+    <section className=" text-black bg-white min-h-screen flex items-center">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
         <div className="grid md:grid-cols-2 gap-12 items-center">
           {/* Left Content */}
@@ -14,18 +14,18 @@ export default function HeroSection() {
               Delicious Food
               <span className="block text-yellow-300">Awaits You</span>
             </h1>
-            <p className="text-xl mb-8 text-orange-100">
+            <p className="text-xl mb-8 text-orange-700">
               Experience the finest dining with our carefully crafted menu featuring fresh ingredients and authentic
               flavors that will delight your taste buds.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <Link
                 href="/menu"
-                className="bg-white text-orange-600 px-8 py-3 rounded-lg font-semibold hover:bg-orange-50 transition-colors text-center"
+                className="bg-orange-600 text-white hover:text-orange-600 px-8 py-3 rounded-lg font-semibold hover:bg-orange-50 transition-colors text-center"
               >
                 View Menu
               </Link>
-              <button className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-orange-600 transition-colors">
+              <button className="border-2 border-orange-600 text-orange-600  px-8 py-3 rounded-lg font-semibold hover:border-none hover:bg-orange-50 hover:text-orange-600 transition-colors">
                 Order Now
               </button>
             </div>
