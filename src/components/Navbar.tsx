@@ -1,14 +1,33 @@
 "use client"
+
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Menu, Search, ShoppingCart, User, X } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import Image from "next/image"
+import userAvatar from "../../public/assests/img/review1.png"
+import { onAuthStateChanged, signOut } from "firebase/auth"
+import { auth } from "@/lib/firebase"
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
+  const [user, setUser] = useState(null)
+  const [dropdownOpen, setDropdownOpen] = useState(false)
   const pathname = usePathname()
 
-  // Check if current route is active
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser:any) => {
+      setUser(currentUser)
+    })
+
+    return () => unsubscribe()
+  }, [])
+
+  const handleLogout = async () => {
+    await signOut(auth)
+    setDropdownOpen(false)
+  }
+
   const isActive = (path: string) => {
     if (path === "/" && pathname === "/") return true
     if (path !== "/" && pathname.startsWith(path)) return true
@@ -46,25 +65,56 @@ export default function Navbar() {
             >
               Add Menu
             </Link>
-             <div className="flex items-center space-x-4">
-            {/* Search Icon */}
-            <button className="text-orange-500 transition-colors">
-              <Search size={20} />
-            </button>
 
-            {/* User Icon */}
-            <Link href='/login' className="text-orange-500 transition-colors">
-              <User size={20} />
-            </Link>
+            <div className="flex items-center space-x-4 relative">
+              {/* Search Icon */}
+              <button className="text-orange-500 transition-colors">
+                <Search size={20} />
+              </button>
 
-            {/* Cart Icon with Badge */}
-            <button className="relative text-orange-500 transition-colors">
-              <ShoppingCart size={20} />
-              <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                0
-              </span>
-            </button>
-          </div>
+              {/* User Icon or Avatar */}
+              {user ? (
+                <div className="relative">
+                  <Image
+                    src={userAvatar}
+                    alt="User"
+                    width={32}
+                    height={32}
+                    className="rounded-full cursor-pointer border border-orange-500"
+                    onClick={() => setDropdownOpen(!dropdownOpen)}
+                  />
+                  {dropdownOpen && (
+                    <div className="absolute right-0 mt-2 w-32 bg-white border rounded-md shadow-md z-10">
+                      <Link
+                        href="/profile"
+                        className="block px-4 py-2 text-gray-700 hover:bg-orange-100"
+                        onClick={() => setDropdownOpen(false)}
+                      >
+                        Profile
+                      </Link>
+                      <button
+                        onClick={handleLogout}
+                        className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-orange-100"
+                      >
+                        Logout
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <Link href="/login" className="text-orange-500 transition-colors">
+                  <User size={20} />
+                </Link>
+              )}
+
+              {/* Cart Icon with Badge */}
+              <button className="relative text-orange-500 transition-colors">
+                <ShoppingCart size={20} />
+                <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  0
+                </span>
+              </button>
+            </div>
           </div>
 
           {/* Mobile menu button */}
@@ -74,7 +124,6 @@ export default function Navbar() {
             </button>
           </div>
         </div>
-       
 
         {/* Mobile Menu */}
         {isOpen && (
@@ -101,7 +150,6 @@ export default function Navbar() {
               >
                 Add Menu
               </Link>
-   
             </div>
           </div>
         )}
@@ -109,5 +157,3 @@ export default function Navbar() {
     </nav>
   )
 }
-
-

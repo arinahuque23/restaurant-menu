@@ -1,5 +1,9 @@
 import { ArrowLeft, Star, Clock, Users } from "lucide-react"
 import Link from "next/link"
+import Zoom from 'react-medium-image-zoom'
+import 'react-medium-image-zoom/dist/styles.css'
+import Image from "next/image"
+
 import MenuDetailsClient from "./MenuDetailsClient"
 
 import GrilledSalmon from '/public/assests/img/GrilledSalmon.jpg'
@@ -8,7 +12,6 @@ import FreshOrangeJuice from '/public/assests/img/FreshOrangeJuice.jpg'
 import CaesarSalad from '/public/assests/img/CaesarSalad.jpg'
 import VegetableCurry from '/public/assests/img/VegetableCurry.jpg'
 import ChocolateLavaCake from '/public/assests/img/ChocolateLavaCake.jpeg'
-import Image from "next/image"
 
 
 async function getMenuItem(id: string) {
@@ -64,12 +67,14 @@ export default async function MenuDetailsPage({ params }: { params: { id: string
           {/* Image Section */}
           <div data-aos="fade-right">
             <div className="relative overflow-hidden rounded-lg shadow-lg">
+             <Zoom>
               <Image
               objectFit="cover"
                 src={menuItem.image || "/placeholder.svg"}
                 alt={menuItem.name}
                 className="w-full h-96 object-cover"
               />
+              </Zoom>
               <div className="absolute top-4 left-4 flex gap-2">
                 <span className="bg-orange-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
                   {menuItem.category}
