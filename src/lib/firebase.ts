@@ -4,17 +4,15 @@ import { initializeApp, getApps } from "firebase/app";
 import { getAuth } from "firebase/auth";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBGVlAEtPENy-tnv1KUpO1kRVxo5QplgMk",
-  authDomain: "restaurant-menu-auth-f6673.firebaseapp.com",
-  projectId: "restaurant-menu-auth-f6673",
-  storageBucket: "restaurant-menu-auth-f6673.firebasestorage.app",
-  messagingSenderId: "271586688192",
-  appId: "1:271586688192:web:81bc4ea85962bc1a604125",
-  measurementId: "G-95D4S7SL6V"
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-// Avoid re-initializing in dev (for hot reload)
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApps()[0];
 
-// Auth instance (for login/signup)
 export const auth = getAuth(app);
