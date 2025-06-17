@@ -1,38 +1,40 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { Menu, Search, ShoppingCart, User, X } from "lucide-react"
-import { useEffect, useState } from "react"
-import Image from "next/image"
-import userAvatar from "../../public/assests/img/review1.png"
-import { onAuthStateChanged, signOut } from "firebase/auth"
-import { auth } from "@/lib/firebase"
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Menu, Search, ShoppingCart, User, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import Image from "next/image";
+import userAvatar from "../../public/assests/img/review1.png";
+// import { onAuthStateChanged, signOut } from "firebase/auth"
+import { auth } from "@/lib/firebase";
+import { onAuthStateChanged, signOut } from "firebase/auth";
 
 export default function Navbar() {
-  const [isOpen, setIsOpen] = useState(false)
-  const [user, setUser] = useState(null)
-  const [dropdownOpen, setDropdownOpen] = useState(false)
-  const pathname = usePathname()
+  const [isOpen, setIsOpen] = useState(false);
+  const [user, setUser] = useState(null);
+  const [admin, setAdmin] = useState(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const pathname = usePathname();
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser:any) => {
-      setUser(currentUser)
-    })
+  // useEffect(() => {
+  //   const unsubscribe = onAuthStateChanged(auth, (currentUser: any) => {
+  //     setUser(currentUser);
+  //   });
 
-    return () => unsubscribe()
-  }, [])
+  //   return () => unsubscribe();
+  // }, []);
 
-  const handleLogout = async () => {
-    await signOut(auth)
-    setDropdownOpen(false)
-  }
+  // const handleLogout = async () => {
+  //   await signOut(auth);
+  //   setDropdownOpen(false);
+  // };
 
   const isActive = (path: string) => {
-    if (path === "/" && pathname === "/") return true
-    if (path !== "/" && pathname.startsWith(path)) return true
-    return false
-  }
+    if (path === "/" && pathname === "/") return true;
+    if (path !== "/" && pathname.startsWith(path)) return true;
+    return false;
+  };
 
   return (
     <nav className="bg-white shadow-lg fixed w-full top-0 z-50">
@@ -49,22 +51,38 @@ export default function Navbar() {
           <div className="hidden md:flex items-center space-x-8">
             <Link
               href="/"
-              className={`${isActive("/") ? "text-orange-600" : "text-gray-700"} hover:text-orange-600 transition-colors`}
+              className={`${
+                isActive("/") ? "text-orange-600" : "text-gray-700"
+              } hover:text-orange-600 transition-colors`}
             >
               Home
             </Link>
             <Link
               href="/menu"
-              className={`${isActive("/menu") ? "text-orange-600" : "text-gray-700"} hover:text-orange-600 transition-colors`}
+              className={`${
+                isActive("/menu") ? "text-orange-600" : "text-gray-700"
+              } hover:text-orange-600 transition-colors`}
             >
               Menu
             </Link>
             <Link
               href="/add-menu"
-              className={`${isActive("/add-menu") ? "text-orange-600" : "text-gray-700"} hover:text-orange-600 transition-colors`}
+              className={`${
+                isActive("/add-menu") ? "text-orange-600" : "text-gray-700"
+              } hover:text-orange-600 transition-colors`}
             >
               Add Menu
             </Link>
+            {/* {admin && ( */}
+
+            <Link
+              href="/dashboard"
+              className="block px-4 py-2 text-gray-700 hover:bg-orange-100 hover:rounded-md"
+              onClick={() => setDropdownOpen(false)}
+            >
+              Dashboard
+            </Link>
+            {/* )} */}
 
             <div className="flex items-center space-x-4 relative">
               {/* Search Icon */}
@@ -92,20 +110,46 @@ export default function Navbar() {
                       >
                         Profile
                       </Link>
-                      <button
+                      {/* <button
                         onClick={handleLogout}
                         className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-orange-100"
                       >
                         Logout
-                      </button>
+                      </button> */}
                     </div>
                   )}
                 </div>
               ) : (
-                <Link href="/login" className="text-orange-500 transition-colors">
+                <Link
+                  href="/login"
+                  className="text-orange-500 transition-colors"
+                >
                   <User size={20} />
                 </Link>
               )}
+              {/* {admin && ( */}
+              <div className="relative">
+                <Image
+                  src={userAvatar}
+                  alt="User"
+                  width={32}
+                  height={32}
+                  className="rounded-full cursor-pointer border border-orange-500"
+                  onClick={() => setDropdownOpen(!dropdownOpen)}
+                />
+                {dropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-32 bg-white border rounded-md shadow-md z-10">
+                    <Link
+                      href="/dashboard"
+                      className="block px-4 py-2 text-gray-700 hover:bg-orange-100"
+                      onClick={() => setDropdownOpen(false)}
+                    >
+                      Dashboard
+                    </Link>
+                  </div>
+                )}
+              </div>
+              {/* )} */}
 
               {/* Cart Icon with Badge */}
               <button className="relative text-orange-500 transition-colors">
@@ -119,7 +163,10 @@ export default function Navbar() {
 
           {/* Mobile menu button */}
           <div className="md:hidden flex items-center">
-            <button onClick={() => setIsOpen(!isOpen)} className="text-gray-700 hover:text-orange-600">
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              className="text-gray-700 hover:text-orange-600"
+            >
               {isOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
           </div>
@@ -155,5 +202,5 @@ export default function Navbar() {
         )}
       </div>
     </nav>
-  )
+  );
 }
