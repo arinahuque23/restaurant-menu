@@ -1,7 +1,10 @@
+// ✅ Final MenusPage.tsx (with Reason + Default Rating + API Integrated)
+
 import { useEffect, useState } from "react";
 import { Plus, Edit, Trash2, Upload, X } from "lucide-react";
 import axios from "axios";
 import { useForm, useFieldArray } from "react-hook-form";
+import Link from "next/link";
 
 interface MenuItem {
   _id: string;
@@ -14,14 +17,28 @@ interface MenuItem {
   ingredients?: string[];
 }
 
-interface FormValues {
+type FormValues = {
   name: string;
-  category: string;
-  price: number;
   description: string;
-  status: string;
+  longDescription?: string;
+  price: number;
+  category: string;
+  prepTime?: string;
+  serves?: string;
+  isVegetarian: boolean;
+  allergens: string[];
   ingredients: { value: string }[];
-}
+  calories?: number;
+  protein?: string;
+  carbs?: string;
+  fat?: string;
+  status: string;
+  reason?: string;
+  rating?: number;
+};
+
+const categories = ["Appetizer", "Main Course", "Dessert", "Beverage"];
+const allergenOptions = ["Gluten", "Peanuts", "Dairy"];
 
 const MenusPage = () => {
   const [showModal, setShowModal] = useState(false);
@@ -30,67 +47,39 @@ const MenusPage = () => {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
 
-  const { register, handleSubmit, reset, control } = useForm<FormValues>({
-    defaultValues: {
-      name: "",
-      category: "",
-      price: 0,
-      description: "",
-      status: "Available",
-      ingredients: [{ value: "" }],
-    },
-  });
+  const { register, handleSubmit, control, watch, setValue, reset } =
+    useForm<FormValues>({
+      defaultValues: {
+        name: "",
+        description: "",
+        longDescription: "",
+        price: 0,
+        category: "",
+        prepTime: "",
+        serves: "",
+        isVegetarian: false,
+        allergens: [],
+        ingredients: [{ value: "" }],
+        calories: undefined,
+        protein: "",
+        carbs: "",
+        fat: "",
+        status: "Available",
+        reason: "",
+      },
+    });
 
   const { fields, append, remove } = useFieldArray({
     control,
     name: "ingredients",
   });
+  const selectedAllergens = watch("allergens");
 
-  useEffect(() => {
-    fetchMenuItems();
-  }, []);
-
-  const fetchMenuItems = async () => {
-    try {
-      const res = await axios.get("http://localhost:5000/api/menu");
-      setMenuItems(res.data);
-    } catch (err) {
-      console.error("Fetch error", err);
-    }
-  };
-
-  const openAddModal = () => {
-    reset({
-      name: "",
-      category: "",
-      price: 0,
-      description: "",
-      status: "Available",
-      ingredients: [{ value: "" }],
-    });
-    setEditingItem(null);
-    setImageFile(null);
-    setImagePreview(null);
-    setShowModal(true);
-  };
-
-  const openEditModal = (item: MenuItem) => {
-    const ingredientsArray =
-      Array.isArray(item.ingredients) && typeof item.ingredients[0] === "string"
-        ? item.ingredients.map((ing) => ({ value: ing }))
-        : item.ingredients;
-
-    setEditingItem(item);
-    reset({
-      name: item.name,
-      category: item.category,
-      price: item.price,
-      description: item.description,
-      status: item.status || "Available",
-      ingredients: ingredientsArray as { value: string }[],
-    });
-    setImagePreview(item.imageUrl || null);
-    setShowModal(true);
+  const toggleAllergen = (allergen: string) => {
+    const updated = selectedAllergens.includes(allergen)
+      ? selectedAllergens.filter((a) => a !== allergen)
+      : [...selectedAllergens, allergen];
+    setValue("allergens", updated);
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -105,7 +94,7 @@ const MenusPage = () => {
 
   const onSubmit = async (data: FormValues) => {
     try {
-      let imageUrl = editingItem?.imageUrl || "";
+      let imageUrl = "";
 
       if (imageFile) {
         const formData = new FormData();
@@ -128,6 +117,7 @@ const MenusPage = () => {
         ...data,
         imageUrl,
         ingredients: data.ingredients.map((i) => i.value),
+        rating: 4.9,
       };
 
       if (editingItem) {
@@ -141,9 +131,43 @@ const MenusPage = () => {
 
       setShowModal(false);
       fetchMenuItems();
-    } catch (err) {
-      console.error("Save error", err);
+    } catch (error) {
+      console.error("Submit error:", error);
     }
+  };
+
+  const fetchMenuItems = async () => {
+    try {
+      const res = await axios.get("http://localhost:5000/api/menu");
+      setMenuItems(res.data);
+    } catch (err) {
+      console.error("Fetch error", err);
+    }
+  };
+
+  const openAddModal = () => {
+    reset();
+    setEditingItem(null);
+    setImageFile(null);
+    setImagePreview(null);
+    setShowModal(true);
+  };
+
+  const openEditModal = (item: MenuItem) => {
+    setEditingItem(item);
+    const ingredientsArray = item.ingredients?.map((ing) => ({
+      value: ing,
+    })) || [{ value: "" }];
+    reset({
+      name: item.name,
+      category: item.category,
+      price: item.price,
+      description: item.description,
+      status: item.status,
+      ingredients: ingredientsArray,
+    });
+    setImagePreview(item.imageUrl || null);
+    setShowModal(true);
   };
 
   const handleDelete = async (id: string) => {
@@ -155,6 +179,9 @@ const MenusPage = () => {
     }
   };
 
+  useEffect(() => {
+    fetchMenuItems();
+  }, []);
   return (
     <div className="p-4">
       <div className="flex justify-between items-center mb-4">
@@ -240,119 +267,251 @@ const MenusPage = () => {
             <h2 className="text-lg font-bold mb-4">
               {editingItem ? "Edit Menu Item" : "Add New Menu Item"}
             </h2>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              <input
-                {...register("name", { required: true })}
-                className="w-full p-2 border rounded"
-                placeholder="Item Name"
-              />
-              <input
-                type="number"
-                {...register("price", { required: true })}
-                className="w-full p-2 border rounded"
-                placeholder="Price"
-              />
-              <input
-                {...register("category", { required: true })}
-                className="w-full p-2 border rounded"
-                placeholder="Category"
-              />
-              <textarea
-                {...register("description", { required: true })}
-                className="w-full p-2 border rounded"
-                placeholder="Short Description"
-              />
-              <select
-                {...register("status")}
-                className="w-full p-2 border rounded"
-              >
-                <option value="Available">Available</option>
-                <option value="Out of Stock">Out of Stock</option>
-              </select>
 
-              <div>
-                <label className="block mb-1">Image</label>
-                {imagePreview ? (
-                  <div className="relative">
-                    <img
-                      src={imagePreview}
-                      alt="Preview"
-                      className="w-full h-40 object-cover rounded"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setImagePreview(null);
-                        setImageFile(null);
-                      }}
-                      className="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  </div>
-                ) : (
-                  <div className="text-center border-dashed border-2 border-gray-300 rounded p-4">
-                    <Upload className="mx-auto text-gray-400 w-6 h-6 mb-2" />
-                    <p className="text-gray-500 mb-2">Upload an image</p>
+            <form onSubmit={handleSubmit(onSubmit)} data-aos="fade-up">
+              {/* BASIC INFORMATION */}
+              <div className="mb-8">
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Item Name *
+                    </label>
                     <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageUpload}
-                      className="hidden"
-                      id="upload-image"
+                      {...register("name", { required: true })}
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:border-orange-500"
+                      placeholder="Enter item name"
                     />
-                    <label
-                      htmlFor="upload-image"
-                      className="bg-orange-600 text-white px-4 py-2 rounded cursor-pointer"
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Price *
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      {...register("price", { required: true })}
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:border-orange-500"
+                      placeholder="0.00"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Category *
+                    </label>
+                    <select
+                      {...register("category", { required: true })}
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:border-orange-500"
                     >
-                      Choose File
+                      <option value="">Select category</option>
+                      {categories.map((cat) => (
+                        <option key={cat} value={cat}>
+                          {cat}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Preparation Time
+                    </label>
+                    <input
+                      {...register("prepTime")}
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:border-orange-500"
+                      placeholder="e.g., 15-20 mins"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Serves
+                    </label>
+                    <input
+                      {...register("serves")}
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:border-orange-500"
+                      placeholder="e.g., 1-2 persons"
+                    />
+                  </div>
+                  <div className="flex items-center">
+                    <input
+                      type="checkbox"
+                      {...register("isVegetarian")}
+                      className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
+                    />
+                    <label className="ml-2 text-sm font-medium text-gray-700">
+                      Vegetarian Item
                     </label>
                   </div>
-                )}
+                </div>
+
+                <div className="mt-6">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Short Description *
+                  </label>
+                  <textarea
+                    {...register("description", { required: true })}
+                    rows={3}
+                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:border-orange-500"
+                    placeholder="Brief description of the item"
+                  />
+                </div>
+
+                <div className="mt-6">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Detailed Description
+                  </label>
+                  <textarea
+                    {...register("longDescription")}
+                    rows={4}
+                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:border-orange-500"
+                    placeholder="Detailed description including preparation method, ingredients, etc."
+                  />
+                </div>
               </div>
 
-              <div>
-                <label className="block mb-1">Ingredients</label>
-                {fields.map((field, index) => (
-                  <div key={field.id} className="flex gap-2 mb-2">
-                    <input
-                      {...register(`ingredients.${index}.value`)}
-                      className="flex-1 p-2 border rounded"
-                      placeholder={`Ingredient ${index + 1}`}
-                    />
-                    {fields.length > 1 && (
+              {/* IMAGE UPLOAD */}
+              <div className="mb-8">
+                <h2 className="text-xl font-semibold text-gray-800 mb-4">
+                  Image
+                </h2>
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                  {imagePreview ? (
+                    <div className="relative">
+                      <img
+                        src={imagePreview}
+                        alt="Preview"
+                        className="w-full h-64 object-cover rounded-lg"
+                      />
                       <button
                         type="button"
-                        onClick={() => remove(index)}
-                        className="text-red-500"
+                        onClick={() => setImagePreview(null)}
+                        className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
                       >
                         <X className="w-4 h-4" />
                       </button>
-                    )}
-                  </div>
-                ))}
-                <button
-                  type="button"
-                  onClick={() => append({ value: "" })}
-                  className="text-orange-600 font-medium"
-                >
-                  + Add Ingredient
-                </button>
+                    </div>
+                  ) : (
+                    <div>
+                      <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                      <p className="text-gray-600 mb-4">
+                        Upload an image of your menu item
+                      </p>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        className="hidden"
+                        id="image-upload"
+                      />
+                      <label
+                        htmlFor="image-upload"
+                        className="bg-orange-600 text-white px-6 py-2 rounded-lg hover:bg-orange-700 transition-colors cursor-pointer"
+                      >
+                        Choose Image
+                      </label>
+                    </div>
+                  )}
+                </div>
               </div>
 
-              <div className="flex justify-end gap-3 pt-4">
-                <button
-                  type="button"
-                  onClick={() => setShowModal(false)}
-                  className="px-4 py-2 border rounded"
+              {/* INGREDIENTS */}
+              <div className="mb-8">
+                <h2 className="text-xl font-semibold text-gray-800 mb-4">
+                  Ingredients
+                </h2>
+                <div className="space-y-3">
+                  {fields.map((field, index) => (
+                    <div key={field.id} className="flex gap-3">
+                      <input
+                        {...register(`ingredients.${index}.value` as const)}
+                        className="flex-1 px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:border-orange-500"
+                        placeholder={`Ingredient ${index + 1}`}
+                      />
+                      {fields.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => remove(index)}
+                          className="px-3 py-3 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        >
+                          <X className="w-5 h-5" />
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => append({ value: "" })}
+                    className="text-orange-600 hover:text-orange-700 font-medium"
+                  >
+                    + Add Another Ingredient
+                  </button>
+                </div>
+              </div>
+
+              {/* ALLERGENS */}
+              <div className="mb-8">
+                <h2 className="text-xl font-semibold text-gray-800 mb-4">
+                  Allergens
+                </h2>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  {allergenOptions?.map((allergen) => (
+                    <label key={allergen} className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={selectedAllergens?.includes(allergen)}
+                        onChange={() => toggleAllergen(allergen)}
+                        className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
+                      />
+                      <span className="ml-2 text-sm text-gray-700">
+                        {allergen}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* NUTRITION */}
+              <div className="mb-8">
+                <h2 className="text-xl font-semibold text-gray-800 mb-4">
+                  Nutritional Information
+                </h2>
+                <div className="grid md:grid-cols-4 gap-6">
+                  <input
+                    {...register("calories")}
+                    type="number"
+                    placeholder="Calories"
+                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:border-orange-500"
+                  />
+                  <input
+                    {...register("protein")}
+                    placeholder="Protein (g)"
+                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:border-orange-500"
+                  />
+                  <input
+                    {...register("carbs")}
+                    placeholder="Carbs (g)"
+                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:border-orange-500"
+                  />
+                  <input
+                    {...register("fat")}
+                    placeholder="Fat (g)"
+                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:border-orange-500"
+                  />
+                </div>
+              </div>
+
+              {/* BUTTONS */}
+              <div className="flex gap-4 justify-end">
+                <Link
+                  href="/menu"
+                  className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
                 >
                   Cancel
-                </button>
+                </Link>
                 <button
                   type="submit"
-                  className="bg-orange-600 text-white px-4 py-2 rounded"
+                  className="px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
                 >
-                  Save
+                  Add Menu Item
                 </button>
               </div>
             </form>

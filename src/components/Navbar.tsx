@@ -78,22 +78,14 @@ export default function Navbar() {
             >
               Menu
             </Link>
-            <Link
-              href="/add-menu"
-              className={`${
-                isActive("/add-menu") ? "text-orange-600" : "text-gray-700"
-              } hover:text-orange-600`}
-            >
-              Add Menu
-            </Link>
 
             <div className="flex items-center space-x-4 relative">
-              <Search size={20} className="text-orange-500" />
+              {/* <Search size={20} className="text-orange-500" /> */}
 
               {user ? (
                 <div className="relative">
                   <Image
-                    src={userAvatar}
+                    src={user.userImg || userAvatar}
                     alt="User"
                     width={32}
                     height={32}
