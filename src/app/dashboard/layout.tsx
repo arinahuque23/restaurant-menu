@@ -17,6 +17,7 @@ import UserPage from "./users/page";
 import Reviews from "./reviews/page";
 import MenusPage from "./menus/page";
 import AddDialog from "@/modules/add-menu/components/AddDialog";
+import Link from "next/link";
 
 export default function RestaurantDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -24,8 +25,8 @@ export default function RestaurantDashboard() {
   const [showMenuModal, setShowMenuModal] = useState(false);
 
   const navigation = [
-    { name: "Orders", icon: ShoppingCart, route: "orders" },
     { name: "Menu", icon: ChefHat, route: "menu" },
+    { name: "Orders", icon: ShoppingCart, route: "orders" },
     { name: "Users", icon: Users, route: "users" },
     { name: "Reviews", icon: Star, route: "reviews" },
   ];
@@ -39,12 +40,11 @@ export default function RestaurantDashboard() {
 
   const renderContent = () => {
     switch (activeRoute) {
-      case "orders":
-        return <OrdersPage />;
-
       case "menu":
         return <MenusPage />;
 
+      case "orders":
+        return <OrdersPage />;
       case "users":
         return <UserPage />;
 
@@ -65,7 +65,9 @@ export default function RestaurantDashboard() {
         } fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0`}
       >
         <div className="flex items-center justify-between h-16 px-6 border-b">
-          <h1 className="text-xl font-bold text-orange-600">Tasty Bites</h1>
+          <Link href="/" className="text-xl font-bold text-orange-600">
+            Tasty Bites
+          </Link>
           <button
             className="lg:hidden p-1 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-orange-500"
             onClick={() => setSidebarOpen(false)}
@@ -106,7 +108,7 @@ export default function RestaurantDashboard() {
           <div className="flex items-center justify-between px-4 sm:px-6 py-4">
             <div className="flex items-center">
               <button
-                className="lg:hidden mr-2 p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-orange-500"
+                className="lg:hidden mr-2 p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none "
                 onClick={() => setSidebarOpen(true)}
               >
                 <Menu className="h-5 w-5" />
@@ -117,11 +119,11 @@ export default function RestaurantDashboard() {
             </div>
             <div className="flex items-center space-x-2 sm:space-x-4">
               <div className="relative hidden sm:block">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-black h-4 w-4" />
                 <input
                   type="search"
                   placeholder="Search..."
-                  className="pl-10 w-48 lg:w-64 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                  className="pl-10 w-48 lg:w-64 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none  text-black"
                 />
               </div>
               <button className="p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-orange-500">

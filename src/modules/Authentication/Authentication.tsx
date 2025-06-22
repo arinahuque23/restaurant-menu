@@ -10,6 +10,7 @@ import {
 import { auth } from "@/lib/firebase";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function Authentication() {
   const router = useRouter();
@@ -17,10 +18,12 @@ export default function Authentication() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [phone, setPhone] = useState("");
   const [redirectTo, setRedirectTo] = useState("/");
   const [isLogin, setIsLogin] = useState(true);
-  const [phone, setPhone] = useState("");
-
+  const [showPassword, setShowPassword] = useState(false);
   useEffect(() => {
     const redirect = searchParams.get("redirect");
     if (redirect) {
@@ -47,12 +50,28 @@ export default function Authentication() {
         email,
         password
       );
+
       await updateProfile(userCredential.user, {
-        displayName: phone, // or any name, since phone isn't directly stored
+        displayName: `${firstName} ${lastName}`,
       });
+
+      await fetch("http://localhost:5000/api/user/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          uid: userCredential.user.uid,
+          email,
+          phone,
+          firstName,
+          lastName,
+        }),
+      });
+
       toast.success("Registration successful! Redirecting to login...");
       setTimeout(() => {
-        setIsLogin(true); // switch to login form
+        setIsLogin(true);
       }, 1000);
     } catch (err: any) {
       toast.error(err.message);
@@ -67,7 +86,10 @@ export default function Authentication() {
           {isLogin ? "Restaurant Login" : "Create an Account"}
         </h2>
 
-        <form onSubmit={isLogin ? handleLogin : handleRegister} className="space-y-4">
+        <form
+          onSubmit={isLogin ? handleLogin : handleRegister}
+          className="space-y-4"
+        >
           <input
             type="email"
             className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 text-black"
@@ -78,24 +100,53 @@ export default function Authentication() {
           />
 
           {!isLogin && (
-            <input
-              type="tel"
-              className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 text-black"
-              placeholder="Phone Number"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              required
-            />
+            <>
+              <input
+                type="text"
+                className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 text-black"
+                placeholder="First Name"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                required
+              />
+
+              <input
+                type="text"
+                className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 text-black"
+                placeholder="Last Name"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                required
+              />
+
+              <input
+                type="tel"
+                className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 text-black"
+                placeholder="Phone Number"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                required
+              />
+            </>
           )}
 
-          <input
-            type="password"
-            className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 text-black"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              className="w-full p-3 pr-10 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 text-black"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+            >
+              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            </button>
+          </div>
 
           <button
             type="submit"

@@ -134,7 +134,7 @@ const Orders = () => {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <h1 className="text-2xl font-bold text-gray-900">Order Management</h1>
           <div className="flex flex-col sm:flex-row gap-2">
-            <select className="px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
+            <select className="px-3 py-2 border border-gray-300 text-black rounded-md shadow-sm focus:outline-none =">
               <option value="">All Status</option>
               <option value="Pending">Pending</option>
               <option value="Preparing">Preparing</option>
@@ -142,7 +142,7 @@ const Orders = () => {
               <option value="Delivered">Delivered</option>
               <option value="Cancelled">Cancelled</option>
             </select>
-            <select className="px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
+            <select className="px-3 py-2 border border-gray-300 text-black rounded-md shadow-sm focus:outline-none ">
               <option value="">All Types</option>
               <option value="Dine-in">Dine-in</option>
               <option value="Takeaway">Takeaway</option>

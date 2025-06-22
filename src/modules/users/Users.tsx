@@ -1,51 +1,53 @@
+import { useEffect, useState } from "react";
 import { Plus, Edit, Trash2, Eye } from "lucide-react";
+import axios from "axios";
 
 const UsersComponent = () => {
-  const users = [
-    {
-      id: 1,
-      name: "John Doe",
-      email: "john@example.com",
-      phone: "+1 234-567-8901",
-      role: "Customer",
-      avatar: "JD",
-    },
-    {
-      id: 2,
-      name: "Jane Smith",
-      email: "jane@example.com",
-      phone: "+1 234-567-8902",
-      role: "Staff",
-      avatar: "JS",
-    },
-    {
-      id: 3,
-      name: "Mike Johnson",
-      email: "mike@example.com",
-      phone: "+1 234-567-8903",
-      role: "Manager",
-      avatar: "MJ",
-    },
-    {
-      id: 4,
-      name: "Sarah Wilson",
-      email: "sarah@example.com",
-      phone: "+1 234-567-8904",
-      role: "Customer",
-      avatar: "SW",
-    },
-  ];
+  const [users, setUsers] = useState([]);
+  const [confirmUid, setConfirmUid] = useState(null);
 
-  const getRoleColor = (role: string) => {
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const fetchUsers = async () => {
+    try {
+      const res = await axios.get("http://localhost:5000/api/user");
+      setUsers(res.data);
+    } catch (err) {
+      console.error("Failed to fetch users:", err);
+    }
+  };
+
+  const handleRoleChange = async (uid: any, role: any) => {
+    try {
+      await axios.put(`http://localhost:5000/api/user/${uid}`, { role });
+      fetchUsers();
+    } catch (err) {
+      console.error("Failed to update role:", err);
+    }
+  };
+
+  const handleDeleteUser = async () => {
+    if (!confirmUid) return;
+    try {
+      await axios.delete(`http://localhost:5000/api/user/${confirmUid}`);
+      setConfirmUid(null);
+      fetchUsers();
+    } catch (err) {
+      console.error("Failed to delete user:", err);
+    }
+  };
+
+  const getRoleColor = (role: any) => {
     switch (role) {
-      case "Manager":
+      case "admin":
         return "bg-purple-100 text-purple-800";
-      case "Staff":
-        return "bg-blue-100 text-blue-800";
       default:
         return "bg-gray-100 text-gray-800";
     }
   };
+
   return (
     <div>
       <div className="space-y-6">
@@ -80,18 +82,19 @@ const UsersComponent = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {users.map((user) => (
-                  <tr key={user.id} className="hover:bg-gray-50">
+                {users.map((user: any) => (
+                  <tr key={user.uid} className="hover:bg-gray-50">
                     <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="h-10 w-10 bg-orange-500 rounded-full flex items-center justify-center">
                           <span className="text-white text-sm font-medium">
-                            {user.avatar}
+                            {user.firstName?.[0]}
+                            {user.lastName?.[0]}
                           </span>
                         </div>
                         <div className="ml-4">
                           <div className="text-sm font-medium text-gray-900">
-                            {user.name}
+                            {user.firstName} {user.lastName}
                           </div>
                         </div>
                       </div>
@@ -103,13 +106,18 @@ const UsersComponent = () => {
                       {user.phone}
                     </td>
                     <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${getRoleColor(
+                      <select
+                        value={user.role}
+                        onChange={(e) =>
+                          handleRoleChange(user.uid, e.target.value)
+                        }
+                        className={`px-2.5 py-0.5 text-xs font-semibold rounded-full ${getRoleColor(
                           user.role
                         )}`}
                       >
-                        {user.role}
-                      </span>
+                        <option value="user">User</option>
+                        <option value="admin">Admin</option>
+                      </select>
                     </td>
                     <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex space-x-2">
@@ -119,7 +127,10 @@ const UsersComponent = () => {
                         <button className="text-orange-600 hover:text-orange-900 p-1 rounded-md hover:bg-orange-50 transition-colors">
                           <Edit className="h-4 w-4" />
                         </button>
-                        <button className="text-red-600 hover:text-red-900 p-1 rounded-md hover:bg-red-50 transition-colors">
+                        <button
+                          onClick={() => setConfirmUid(user.uid)}
+                          className="text-red-600 hover:text-red-900 p-1 rounded-md hover:bg-red-50 transition-colors"
+                        >
                           <Trash2 className="h-4 w-4" />
                         </button>
                       </div>
@@ -130,6 +141,33 @@ const UsersComponent = () => {
             </table>
           </div>
         </div>
+
+        {confirmUid && (
+          <div className="fixed inset-0 bg-black/30 bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 w-96 shadow-lg">
+              <h2 className="text-lg font-semibold text-gray-800 mb-4">
+                Confirm Deletion
+              </h2>
+              <p className="text-sm text-gray-600 mb-6">
+                Are you sure you want to delete this user?
+              </p>
+              <div className="flex justify-end space-x-3">
+                <button
+                  onClick={() => setConfirmUid(null)}
+                  className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDeleteUser}
+                  className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
