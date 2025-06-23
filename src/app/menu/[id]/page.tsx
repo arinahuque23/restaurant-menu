@@ -1,18 +1,12 @@
-import { ArrowLeft, Star, Clock, Users } from "lucide-react"
-import Link from "next/link"
-import Zoom from 'react-medium-image-zoom'
-import 'react-medium-image-zoom/dist/styles.css'
-import Image from "next/image"
+import { ArrowLeft, Star, Clock, Users } from "lucide-react";
+import Link from "next/link";
+import Zoom from "react-medium-image-zoom";
+import "react-medium-image-zoom/dist/styles.css";
+import Image from "next/image";
 
-import MenuDetailsClient from "./MenuDetailsClient"
+import MenuDetailsClient from "./MenuDetailsClient";
 
-import GrilledSalmon from '/public/assests/img/GrilledSalmon.jpg'
-import ChickenTikka from '/public/assests/img/ChickenTikka.jpg'
-import FreshOrangeJuice from '/public/assests/img/FreshOrangeJuice.jpg'
-import CaesarSalad from '/public/assests/img/CaesarSalad.jpg'
-import VegetableCurry from '/public/assests/img/VegetableCurry.jpg'
-import ChocolateLavaCake from '/public/assests/img/ChocolateLavaCake.jpeg'
-
+import GrilledSalmon from "/public/assests/img/GrilledSalmon.jpg";
 
 async function getMenuItem(id: string) {
   return {
@@ -46,18 +40,28 @@ async function getMenuItem(id: string) {
       carbs: "25g",
       fat: "22g",
     },
-  }
+  };
+}
+interface PageProps {
+  params: Promise<{
+    id: string;
+  }>;
 }
 
-export default async function MenuDetailsPage({ params }: { params: { id: string } }) {
-  const menuItem = await getMenuItem(params.id)
+export default async function MenuDetailsPage({ params }: PageProps) {
+  const { id } = await params; // ✅ Must await
+
+  const menuItem = await getMenuItem(id);
 
   return (
     <div className="pt-16 min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Back Button */}
         <div className="mb-6" data-aos="fade-right">
-          <Link href="/menu" className="inline-flex items-center text-gray-600 hover:text-orange-600 transition-colors">
+          <Link
+            href="/menu"
+            className="inline-flex items-center text-gray-600 hover:text-orange-600 transition-colors"
+          >
             <ArrowLeft className="w-5 h-5 mr-2" />
             Back to Menu
           </Link>
@@ -67,13 +71,13 @@ export default async function MenuDetailsPage({ params }: { params: { id: string
           {/* Image Section */}
           <div data-aos="fade-right">
             <div className="relative overflow-hidden rounded-lg shadow-lg">
-             <Zoom>
-              <Image
-              objectFit="cover"
-                src={menuItem.image || "/placeholder.svg"}
-                alt={menuItem.name}
-                className="w-full h-96 object-cover"
-              />
+              <Zoom>
+                <Image
+                  objectFit="cover"
+                  src={menuItem.image || "/placeholder.svg"}
+                  alt={menuItem.name}
+                  className="w-full h-96 object-cover"
+                />
               </Zoom>
               <div className="absolute top-4 left-4 flex gap-2">
                 <span className="bg-orange-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
@@ -93,12 +97,18 @@ export default async function MenuDetailsPage({ params }: { params: { id: string
             <div className="bg-white rounded-lg shadow-lg p-8">
               {/* Header */}
               <div className="mb-6">
-                <h1 className="text-3xl font-bold text-gray-800 mb-2">{menuItem.name}</h1>
+                <h1 className="text-3xl font-bold text-gray-800 mb-2">
+                  {menuItem.name}
+                </h1>
                 <div className="flex items-center gap-4 mb-4">
                   <div className="flex items-center">
                     <Star className="w-5 h-5 text-yellow-400 fill-current" />
-                    <span className="text-lg font-semibold ml-1 text-orange-600">{menuItem.rating}</span>
-                    <span className="text-gray-600 ml-1">({menuItem.reviews} reviews)</span>
+                    <span className="text-lg font-semibold ml-1 text-orange-600">
+                      {menuItem.rating}
+                    </span>
+                    <span className="text-gray-600 ml-1">
+                      ({menuItem.reviews} reviews)
+                    </span>
                   </div>
                 </div>
                 <p className="text-gray-600 text-lg">{menuItem.description}</p>
@@ -122,10 +132,15 @@ export default async function MenuDetailsPage({ params }: { params: { id: string
               {/* Allergens */}
               {menuItem.allergens.length > 0 && (
                 <div className="mb-4">
-                  <h3 className="font-semibold text-gray-800 mb-2">Allergens:</h3>
+                  <h3 className="font-semibold text-gray-800 mb-2">
+                    Allergens:
+                  </h3>
                   <div className="flex flex-wrap gap-2">
                     {menuItem.allergens.map((allergen) => (
-                      <span key={allergen} className="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm">
+                      <span
+                        key={allergen}
+                        className="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm"
+                      >
                         {allergen}
                       </span>
                     ))}
@@ -141,31 +156,45 @@ export default async function MenuDetailsPage({ params }: { params: { id: string
           {/* Description */}
           <div className="lg:col-span-2" data-aos="fade-up">
             <div className="bg-white rounded-lg shadow-lg p-8">
-              <h2 className="text-2xl font-bold text-gray-800 mb-4">Description</h2>
-              <p className="text-gray-600 leading-relaxed">{menuItem.longDescription}</p>
+              <h2 className="text-2xl font-bold text-gray-800 mb-4">
+                Description
+              </h2>
+              <p className="text-gray-600 leading-relaxed">
+                {menuItem.longDescription}
+              </p>
             </div>
           </div>
 
           {/* Nutritional Info */}
           <div data-aos="fade-up" data-aos-delay="100">
             <div className="bg-white rounded-lg shadow-lg p-8">
-              <h2 className="text-2xl font-bold text-gray-800 mb-4">Nutrition Facts</h2>
+              <h2 className="text-2xl font-bold text-gray-800 mb-4">
+                Nutrition Facts
+              </h2>
               <div className="space-y-3">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Calories</span>
-                  <span className="font-semibold">{menuItem.nutritionalInfo.calories}</span>
+                  <span className="font-semibold">
+                    {menuItem.nutritionalInfo.calories}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Protein</span>
-                  <span className="font-semibold">{menuItem.nutritionalInfo.protein}</span>
+                  <span className="font-semibold">
+                    {menuItem.nutritionalInfo.protein}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Carbs</span>
-                  <span className="font-semibold">{menuItem.nutritionalInfo.carbs}</span>
+                  <span className="font-semibold">
+                    {menuItem.nutritionalInfo.carbs}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Fat</span>
-                  <span className="font-semibold">{menuItem.nutritionalInfo.fat}</span>
+                  <span className="font-semibold">
+                    {menuItem.nutritionalInfo.fat}
+                  </span>
                 </div>
               </div>
             </div>
@@ -175,7 +204,9 @@ export default async function MenuDetailsPage({ params }: { params: { id: string
         {/* Ingredients */}
         <div className="mt-8" data-aos="fade-up">
           <div className="bg-white rounded-lg shadow-lg p-8">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">Ingredients</h2>
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">
+              Ingredients
+            </h2>
             <div className="grid md:grid-cols-2 gap-2">
               {menuItem.ingredients.map((ingredient, index) => (
                 <div key={index} className="flex items-center">
@@ -188,5 +219,5 @@ export default async function MenuDetailsPage({ params }: { params: { id: string
         </div>
       </div>
     </div>
-  )
+  );
 }

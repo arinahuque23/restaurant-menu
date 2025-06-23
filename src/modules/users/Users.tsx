@@ -1,3 +1,4 @@
+"use client";
 import { useEffect, useState } from "react";
 import { Plus, Edit, Trash2, Eye } from "lucide-react";
 import axios from "axios";

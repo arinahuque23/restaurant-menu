@@ -1,4 +1,4 @@
-// ✅ Final MenusPage.tsx (with Reason + Default Rating + API Integrated)
+"use client";
 
 import { useEffect, useState } from "react";
 import { Plus, Edit, Trash2, Upload, X } from "lucide-react";
