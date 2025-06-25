@@ -76,16 +76,19 @@ const MenuDetailsSection = ({ params }: PageProps) => {
                 <Zoom>
                   <Image
                     objectFit="cover"
-                    src={menuItem.image || "/placeholder.svg"}
-                    alt={menuItem.name}
+                    src={menuItem?.imageUrl || "/placeholder.svg"}
+                    alt="menu"
                     className="w-full h-96 object-cover"
+                    priority
+                    width={120}
+                    height={120}
                   />
                 </Zoom>
                 <div className="absolute top-4 left-4 flex gap-2">
                   <span className="bg-orange-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
-                    {menuItem.category}
+                    {menuItem?.category}
                   </span>
-                  {menuItem.isVegetarian && (
+                  {menuItem?.isVegetarian && (
                     <span className="bg-green-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
                       Vegetarian
                     </span>
@@ -100,21 +103,21 @@ const MenuDetailsSection = ({ params }: PageProps) => {
                 {/* Header */}
                 <div className="mb-6">
                   <h1 className="text-3xl font-bold text-gray-800 mb-2">
-                    {menuItem.name}
+                    {menuItem?.name}
                   </h1>
                   <div className="flex items-center gap-4 mb-4">
                     <div className="flex items-center">
                       <Star className="w-5 h-5 text-yellow-400 fill-current" />
                       <span className="text-lg font-semibold ml-1 text-orange-600">
-                        {menuItem.rating}
+                        {menuItem?.rating}
                       </span>
                       <span className="text-gray-600 ml-1">
-                        ({menuItem.reviews} reviews)
+                        ({menuItem?.reviews} reviews)
                       </span>
                     </div>
                   </div>
                   <p className="text-gray-600 text-lg">
-                    {menuItem.description}
+                    {menuItem?.description}
                   </p>
                 </div>
 
@@ -122,11 +125,11 @@ const MenuDetailsSection = ({ params }: PageProps) => {
                 <div className="grid grid-cols-2 gap-4 mb-6">
                   <div className="flex items-center">
                     <Clock className="w-5 h-5 text-orange-600 mr-2" />
-                    <span className="text-gray-600">{menuItem.prepTime}</span>
+                    <span className="text-gray-600">{menuItem?.prepTime}</span>
                   </div>
                   <div className="flex items-center">
                     <Users className="w-5 h-5 text-orange-600 mr-2" />
-                    <span className="text-gray-600">{menuItem.serves}</span>
+                    <span className="text-gray-600">{menuItem?.serves}</span>
                   </div>
                 </div>
 
@@ -163,7 +166,7 @@ const MenuDetailsSection = ({ params }: PageProps) => {
                   Description
                 </h2>
                 <p className="text-gray-600 leading-relaxed">
-                  {menuItem.longDescription}
+                  {menuItem?.longDescription}
                 </p>
               </div>
             </div>
@@ -178,25 +181,25 @@ const MenuDetailsSection = ({ params }: PageProps) => {
                   <div className="flex justify-between">
                     <span className="text-gray-600">Calories</span>
                     <span className="font-semibold">
-                      {menuItem.nutritionalInfo.calories}
+                      {menuItem?.nutritionalInfo.calories}
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Protein</span>
                     <span className="font-semibold">
-                      {menuItem.nutritionalInfo.protein}
+                      {menuItem?.nutritionalInfo.protein}
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Carbs</span>
                     <span className="font-semibold">
-                      {menuItem.nutritionalInfo.carbs}
+                      {menuItem?.nutritionalInfo.carbs}
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Fat</span>
                     <span className="font-semibold">
-                      {menuItem.nutritionalInfo.fat}
+                      {menuItem?.nutritionalInfo.fat}
                     </span>
                   </div>
                 </div>
@@ -211,7 +214,7 @@ const MenuDetailsSection = ({ params }: PageProps) => {
                 Ingredients
               </h2>
               <div className="grid md:grid-cols-2 gap-2">
-                {menuItem.ingredients.map((ingredient: any, index: any) => (
+                {menuItem?.ingredients.map((ingredient: any, index: any) => (
                   <div key={index} className="flex items-center">
                     <span className="w-2 h-2 bg-orange-600 rounded-full mr-3"></span>
                     <span className="text-gray-600">{ingredient}</span>

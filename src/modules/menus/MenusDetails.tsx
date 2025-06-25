@@ -27,7 +27,7 @@ const MenusDetails = ({ menuItem }: MenuDetailsClientProps) => {
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
           <span className="text-3xl font-bold text-orange-600">
-            ${menuItem.price}
+            {/* ${menuItem.price} */}
           </span>
           <div className="flex items-center gap-3">
             <span className="text-gray-600">Quantity:</span>
