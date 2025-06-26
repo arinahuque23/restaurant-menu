@@ -12,56 +12,56 @@ interface MenuItem {
   description: string;
   status: string;
   imageUrl?: string;
-  ingredients?: string[];
+  isVegetarian?: boolean;
+  rating?: number;
 }
 
+const categories = [
+  "All",
+  "Appetizer",
+  "Main Course",
+  "Desserts",
+  "Beverage",
+  "Salads",
+];
+
 export default function MenuPage() {
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [loading, setLoading] = useState(true);
-  const categories = [
-    "All",
-    "Appetizer",
-    "Main Course",
-    "Desserts",
-    "Beverages",
-    "Salads",
-  ];
-
-  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
-
-  const fetchMenuItems = async () => {
-    try {
-      setLoading(true); // start loading
-      const res = await axios.get("http://localhost:5000/api/menu");
-      setMenuItems(res.data);
-    } catch (err) {
-      console.error("Fetch error", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const filteredItems = menuItems.filter((item) => {
-    const matchesSearch =
-      item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory =
-      selectedCategory === "All" || item.category === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
 
   useEffect(() => {
-    fetchMenuItems();
+    (async () => {
+      try {
+        const { data } = await axios.get<MenuItem[]>(
+          "http://localhost:5000/api/menu"
+        );
+        setMenuItems(data);
+      } catch (err) {
+        console.error("Fetch error", err);
+      } finally {
+        setLoading(false);
+      }
+    })();
   }, []);
 
-  if (loading) {
+  /* ----- ফিল্টার ----- */
+  const filtered = menuItems.filter((item) => {
+    const matchSearch =
+      item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchCat =
+      selectedCategory === "All" || item.category === selectedCategory;
+    return matchSearch && matchCat;
+  });
+
+  if (loading)
     return (
       <div className="flex items-center justify-center min-h-screen bg-white">
         <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" />
       </div>
     );
-  }
 
   return (
     <div className="pt-16 min-h-screen bg-gray-50">
@@ -109,7 +109,7 @@ export default function MenuPage() {
 
         {/* Menu Items Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredItems?.map((item: any, index) => (
+          {filtered?.map((item: any, index) => (
             <div
               key={index}
               className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow group"
@@ -158,8 +158,8 @@ export default function MenuPage() {
                   </span>
                   <div className="flex gap-2">
                     <Link
-                      href={`/menu/${item.id}`}
-                      className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors text-sm"
+                      href={`/menu/${item._id}`}
+                      className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 text-sm"
                     >
                       View Details
                     </Link>
@@ -174,7 +174,7 @@ export default function MenuPage() {
         </div>
 
         {/* No Results */}
-        {filteredItems.length === 0 && (
+        {filtered.length === 0 && (
           <div className="text-center py-12" data-aos="fade-up">
             <p className="text-gray-600 text-lg">
               No menu items found matching your search criteria.

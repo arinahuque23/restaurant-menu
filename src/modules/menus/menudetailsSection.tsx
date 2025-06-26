@@ -1,232 +1,208 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ArrowLeft, Star, Clock, Users } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import Zoom from "react-medium-image-zoom";
 import "react-medium-image-zoom/dist/styles.css";
-import Image from "next/image";
-import GrilledSalmon from "/public/assests/img/GrilledSalmon.jpg";
-import MenusDetails from "./MenusDetails";
+import { ArrowLeft, Star, Clock, Users } from "lucide-react";
+import axios from "axios";
 
-async function getMenuItem(id: string) {
-  return {
-    id: Number.parseInt(id),
-    name: "Grilled Salmon",
-    description: "Fresh Atlantic salmon grilled to perfection...",
-    longDescription: "Our signature grilled salmon is prepared with...",
-    price: 24.99,
-    image: GrilledSalmon,
-    category: "Main Course",
-    rating: 4.8,
-    reviews: 156,
-    prepTime: "15-20 mins",
-    serves: "1 person",
-    isVegetarian: false,
-    allergens: ["Fish", "Dairy"],
-    ingredients: ["Salmon", "Herbs", "Lemon", "Potatoes"],
-    nutritionalInfo: {
-      calories: 450,
-      protein: "35g",
-      carbs: "25g",
-      fat: "22g",
-    },
+interface MenuItem {
+  _id: string;
+  name: string;
+  description: string;
+  longDescription?: string;
+  category: string;
+  price: number;
+  rating?: number;
+  reviews?: number;
+  prepTime?: string;
+  serves?: string;
+  allergens?: string[];
+  ingredients?: string[];
+  isVegetarian?: boolean;
+  nutritionalInfo?: {
+    calories?: number;
+    protein?: string;
+    carbs?: string;
+    fat?: string;
   };
+  imageUrl?: string;
 }
 
-interface PageProps {
-  params?: {
-    id: string;
-  };
+interface Props {
+  params: { id: string };
 }
 
-const MenuDetailsSection = ({ params }: PageProps) => {
-  const [menuItem, setMenuItem] = useState<any>(null);
+export default function MenuDetailsSection({ params }: Props) {
+  const [item, setItem] = useState<MenuItem | null>(null);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    if (!params?.id) return; // ⚠️ এটা না থাকলে undefined দিয়েই রিকোয়েস্ট যাবে
 
-  useEffect(() => {
-    const fetchData = async () => {
-      if (!params?.id) return;
-      const data = await getMenuItem(params.id);
-      setMenuItem(data);
-    };
-    fetchData();
+    (async () => {
+      try {
+        const { data } = await axios.get(
+          `http://localhost:5000/api/menu/${params.id}`
+        );
+        setItem(data);
+      } catch (err) {
+        console.error("Details fetch error ➜", err);
+        setItem(null);
+      } finally {
+        setLoading(false);
+      }
+    })();
   }, [params?.id]);
-  useEffect(() => {
-    console.log("Params ID:", params?.id); // ✅ Should now print real ID
-  }, [params?.id]);
+
+  if (loading)
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-white">
+        <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  if (!item)
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-xl">Menu item not found.</p>
+      </div>
+    );
+
   return (
-    <div>
-      <div className="pt-16 min-h-screen bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Back Button */}
-          <div className="mb-6" data-aos="fade-right">
-            <Link
-              href="/menu"
-              className="inline-flex items-center text-gray-600 hover:text-orange-600 transition-colors"
-            >
-              <ArrowLeft className="w-5 h-5 mr-2" />
-              Back to Menu
-            </Link>
+    <div className="pt-16 min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Back */}
+        <Link
+          href="/menu"
+          className="inline-flex items-center text-gray-600 hover:text-orange-600 mb-6"
+        >
+          <ArrowLeft className="w-5 h-5 mr-2" />
+          Back to Menu
+        </Link>
+
+        {/* Grid */}
+        <div className="grid lg:grid-cols-2 gap-12">
+          {/* Image */}
+          <div className="relative">
+            <Zoom>
+              <Image
+                src={item.imageUrl || "/placeholder.svg"}
+                alt={item.name}
+                width={600}
+                height={400}
+                className="w-full h-96 object-cover rounded-lg shadow-lg"
+                priority
+              />
+            </Zoom>
+            <div className="absolute top-4 left-4 flex gap-2">
+              <span className="bg-orange-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                {item.category}
+              </span>
+              {item.isVegetarian && (
+                <span className="bg-green-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                  Vegetarian
+                </span>
+              )}
+            </div>
           </div>
 
-          <div className="grid lg:grid-cols-2 gap-12">
-            {/* Image Section */}
-            <div data-aos="fade-right">
-              <div className="relative overflow-hidden rounded-lg shadow-lg">
-                <Zoom>
-                  <Image
-                    objectFit="cover"
-                    src={menuItem?.imageUrl || "/placeholder.svg"}
-                    alt="menu"
-                    className="w-full h-96 object-cover"
-                    priority
-                    width={120}
-                    height={120}
-                  />
-                </Zoom>
-                <div className="absolute top-4 left-4 flex gap-2">
-                  <span className="bg-orange-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
-                    {menuItem?.category}
+          {/* Details */}
+          <div className="bg-white rounded-lg shadow-lg p-8">
+            <h1 className="text-3xl font-bold mb-2">{item.name}</h1>
+
+            {item.rating && (
+              <div className="flex items-center gap-1 mb-4">
+                <Star className="w-5 h-5 text-yellow-400 fill-current" />
+                <span className="font-semibold text-orange-600">
+                  {item.rating}
+                </span>
+                {item.reviews && (
+                  <span className="text-gray-600 ml-1">
+                    ({item.reviews} reviews)
                   </span>
-                  {menuItem?.isVegetarian && (
-                    <span className="bg-green-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
-                      Vegetarian
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* Details Section */}
-            <div data-aos="fade-left">
-              <div className="bg-white rounded-lg shadow-lg p-8">
-                {/* Header */}
-                <div className="mb-6">
-                  <h1 className="text-3xl font-bold text-gray-800 mb-2">
-                    {menuItem?.name}
-                  </h1>
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className="flex items-center">
-                      <Star className="w-5 h-5 text-yellow-400 fill-current" />
-                      <span className="text-lg font-semibold ml-1 text-orange-600">
-                        {menuItem?.rating}
-                      </span>
-                      <span className="text-gray-600 ml-1">
-                        ({menuItem?.reviews} reviews)
-                      </span>
-                    </div>
-                  </div>
-                  <p className="text-gray-600 text-lg">
-                    {menuItem?.description}
-                  </p>
-                </div>
-
-                {/* Quick Info */}
-                <div className="grid grid-cols-2 gap-4 mb-6">
-                  <div className="flex items-center">
-                    <Clock className="w-5 h-5 text-orange-600 mr-2" />
-                    <span className="text-gray-600">{menuItem?.prepTime}</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Users className="w-5 h-5 text-orange-600 mr-2" />
-                    <span className="text-gray-600">{menuItem?.serves}</span>
-                  </div>
-                </div>
-
-                <MenusDetails menuItem={menuItem} />
-
-                {/* Allergens */}
-                {menuItem?.allergens?.length > 0 && (
-                  <div className="mb-4">
-                    <h3 className="font-semibold text-gray-800 mb-2">
-                      Allergens:
-                    </h3>
-                    <div className="flex flex-wrap gap-2">
-                      {menuItem?.allergens.map((allergen: any) => (
-                        <span
-                          key={allergen}
-                          className="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm"
-                        >
-                          {allergen}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
                 )}
               </div>
-            </div>
-          </div>
+            )}
 
-          {/* Additional Information */}
-          <div className="mt-12 grid lg:grid-cols-3 gap-8">
-            {/* Description */}
-            <div className="lg:col-span-2" data-aos="fade-up">
-              <div className="bg-white rounded-lg shadow-lg p-8">
-                <h2 className="text-2xl font-bold text-gray-800 mb-4">
-                  Description
-                </h2>
-                <p className="text-gray-600 leading-relaxed">
-                  {menuItem?.longDescription}
-                </p>
-              </div>
+            <p className="text-gray-600 mb-6">{item.description}</p>
+
+            <div className="grid grid-cols-2 gap-4 mb-6">
+              {item.prepTime && (
+                <div className="flex items-center">
+                  <Clock className="w-5 h-5 text-orange-600 mr-2" />
+                  <span className="text-gray-600">{item.prepTime}</span>
+                </div>
+              )}
+              {item.serves && (
+                <div className="flex items-center">
+                  <Users className="w-5 h-5 text-orange-600 mr-2" />
+                  <span className="text-gray-600">{item.serves}</span>
+                </div>
+              )}
             </div>
 
-            {/* Nutritional Info */}
-            <div data-aos="fade-up" data-aos-delay="100">
-              <div className="bg-white rounded-lg shadow-lg p-8">
-                <h2 className="text-2xl font-bold text-gray-800 mb-4">
-                  Nutrition Facts
-                </h2>
-                <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Calories</span>
-                    <span className="font-semibold">
-                      {menuItem?.nutritionalInfo.calories}
+            <p className="text-2xl font-bold text-orange-600 mb-4">
+              ${item.price}
+            </p>
+
+            {/* Allergens */}
+            {item.allergens?.length && (
+              <div className="mb-4">
+                <h3 className="font-semibold mb-2">Allergens</h3>
+                <div className="flex flex-wrap gap-2">
+                  {item.allergens.map((a) => (
+                    <span
+                      key={a}
+                      className="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm"
+                    >
+                      {a}
                     </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Protein</span>
-                    <span className="font-semibold">
-                      {menuItem?.nutritionalInfo.protein}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Carbs</span>
-                    <span className="font-semibold">
-                      {menuItem?.nutritionalInfo.carbs}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Fat</span>
-                    <span className="font-semibold">
-                      {menuItem?.nutritionalInfo.fat}
-                    </span>
-                  </div>
+                  ))}
                 </div>
               </div>
-            </div>
-          </div>
-
-          {/* Ingredients */}
-          <div className="mt-8" data-aos="fade-up">
-            <div className="bg-white rounded-lg shadow-lg p-8">
-              <h2 className="text-2xl font-bold text-gray-800 mb-4">
-                Ingredients
-              </h2>
-              <div className="grid md:grid-cols-2 gap-2">
-                {menuItem?.ingredients.map((ingredient: any, index: any) => (
-                  <div key={index} className="flex items-center">
-                    <span className="w-2 h-2 bg-orange-600 rounded-full mr-3"></span>
-                    <span className="text-gray-600">{ingredient}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
+            )}
           </div>
         </div>
+
+        {/* Long Description & Nutrition */}
+        <div className="mt-12 grid lg:grid-cols-3 gap-8">
+          {item.longDescription && (
+            <div className="lg:col-span-2 bg-white rounded-lg shadow-lg p-8">
+              <h2 className="text-2xl font-bold mb-4">Description</h2>
+              <p className="text-gray-600 leading-relaxed">
+                {item.longDescription}
+              </p>
+            </div>
+          )}
+
+          {item.nutritionalInfo && (
+            <div className="bg-white rounded-lg shadow-lg p-8">
+              <h2 className="text-2xl font-bold mb-4">Nutrition Facts</h2>
+              {Object.entries(item.nutritionalInfo).map(([k, v]) => (
+                <div key={k} className="flex justify-between text-gray-600">
+                  <span className="capitalize">{k}</span>
+                  <span className="font-semibold">{v}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Ingredients */}
+        {item.ingredients?.length && (
+          <div className="mt-8 bg-white rounded-lg shadow-lg p-8">
+            <h2 className="text-2xl font-bold mb-4">Ingredients</h2>
+            <ul className="grid md:grid-cols-2 gap-2 list-disc pl-5">
+              {item.ingredients.map((ing) => (
+                <li key={ing} className="text-gray-600">
+                  {ing}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
     </div>
   );
-};
-
-export default MenuDetailsSection;
+}
