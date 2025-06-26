@@ -1,12 +1,27 @@
-"use client"
-import { useState } from "react"
-import type React from "react"
+"use client";
+import { useState } from "react";
+import type React from "react";
 
-import { ArrowLeft, Upload, X } from "lucide-react"
-import { Link } from "react-router-dom"
+import { ArrowLeft, Upload, X } from "lucide-react";
+import Link from "next/link";
 
 export default function AddMenu() {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    name: string;
+    description: string;
+    longDescription: string;
+    price: string;
+    category: string;
+    prepTime: string;
+    serves: string;
+    isVegetarian: boolean;
+    allergens: string[];
+    ingredients: string[];
+    calories: string;
+    protein: string;
+    carbs: string;
+    fat: string;
+  }>({
     name: "",
     description: "",
     longDescription: "",
@@ -21,88 +36,105 @@ export default function AddMenu() {
     protein: "",
     carbs: "",
     fat: "",
-  })
+  });
 
-  const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
-  const categories = ["Appetizers", "Main Course", "Desserts", "Beverages"]
-  const allergenOptions = ["Dairy", "Eggs", "Fish", "Shellfish", "Nuts", "Peanuts", "Soy", "Wheat", "Gluten"]
+  const categories = ["Appetizers", "Main Course", "Desserts", "Beverages"];
+  const allergenOptions = [
+    "Dairy",
+    "Eggs",
+    "Fish",
+    "Shellfish",
+    "Nuts",
+    "Peanuts",
+    "Soy",
+    "Wheat",
+    "Gluten",
+  ];
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value, type } = e.target
+  const handleInputChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
+    const { name, value, type } = e.target;
     if (type === "checkbox") {
-      const checked = (e.target as HTMLInputElement).checked
+      const checked = (e.target as HTMLInputElement).checked;
       setFormData((prev) => ({
         ...prev,
         [name]: checked,
-      }))
+      }));
     } else {
       setFormData((prev) => ({
         ...prev,
         [name]: value,
-      }))
+      }));
     }
-  }
+  };
 
   const handleAllergenChange = (allergen: string) => {
-    setFormData((prev) => ({
+    setFormData((prev: any) => ({
       ...prev,
       allergens: prev.allergens.includes(allergen)
-        ? prev.allergens.filter((a) => a !== allergen)
+        ? prev.allergens.filter((a: any) => a !== allergen)
         : [...prev.allergens, allergen],
-    }))
-  }
+    }));
+  };
 
   const handleIngredientChange = (index: number, value: string) => {
-    const newIngredients = [...formData.ingredients]
-    newIngredients[index] = value
+    const newIngredients = [...formData.ingredients];
+    newIngredients[index] = value;
     setFormData((prev) => ({
       ...prev,
       ingredients: newIngredients,
-    }))
-  }
+    }));
+  };
 
   const addIngredient = () => {
     setFormData((prev) => ({
       ...prev,
       ingredients: [...prev.ingredients, ""],
-    }))
-  }
+    }));
+  };
 
   const removeIngredient = (index: number) => {
     if (formData.ingredients.length > 1) {
-      const newIngredients = formData.ingredients.filter((_, i) => i !== index)
+      const newIngredients = formData.ingredients.filter((_, i) => i !== index);
       setFormData((prev) => ({
         ...prev,
         ingredients: newIngredients,
-      }))
+      }));
     }
-  }
+  };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
+    const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader()
+      const reader = new FileReader();
       reader.onload = () => {
-        setImagePreview(reader.result as string)
-      }
-      reader.readAsDataURL(file)
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
     }
-  }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     // Here you would typically send the data to your backend API
-    console.log("Form submitted:", formData)
-    alert("Menu item added successfully! (This is just a demo)")
-  }
+    console.log("Form submitted:", formData);
+    alert("Menu item added successfully! (This is just a demo)");
+  };
 
   return (
     <div className="pt-16 min-h-screen bg-gray-50">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Back Button */}
         <div className="mb-6" data-aos="fade-right">
-          <Link to="/menu" className="inline-flex items-center text-gray-600 hover:text-orange-600 transition-colors">
+          <Link
+            href="/menu"
+            className="inline-flex items-center text-gray-600 hover:text-orange-600 transition-colors"
+          >
             <ArrowLeft className="w-5 h-5 mr-2" />
             Back to Menu
           </Link>
@@ -110,19 +142,31 @@ export default function AddMenu() {
 
         {/* Page Header */}
         <div className="text-center mb-8" data-aos="fade-up">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">Add New Menu Item</h1>
-          <p className="text-gray-600">Fill in the details to add a new item to your menu</p>
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">
+            Add New Menu Item
+          </h1>
+          <p className="text-gray-600">
+            Fill in the details to add a new item to your menu
+          </p>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-lg p-8" data-aos="fade-up">
+        <form
+          onSubmit={handleSubmit}
+          className="bg-white rounded-lg shadow-lg p-8"
+          data-aos="fade-up"
+        >
           {/* Basic Information */}
           <div className="mb-8">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">Basic Information</h2>
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">
+              Basic Information
+            </h2>
 
             <div className="grid md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Item Name *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Item Name *
+                </label>
                 <input
                   type="text"
                   name="name"
@@ -135,7 +179,9 @@ export default function AddMenu() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Price *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Price *
+                </label>
                 <input
                   type="number"
                   name="price"
@@ -150,7 +196,9 @@ export default function AddMenu() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Category *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Category *
+                </label>
                 <select
                   name="category"
                   value={formData.category}
@@ -168,7 +216,9 @@ export default function AddMenu() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Preparation Time</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Preparation Time
+                </label>
                 <input
                   type="text"
                   name="prepTime"
@@ -180,7 +230,9 @@ export default function AddMenu() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Serves</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Serves
+                </label>
                 <input
                   type="text"
                   name="serves"
@@ -199,12 +251,16 @@ export default function AddMenu() {
                   onChange={handleInputChange}
                   className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
                 />
-                <label className="ml-2 text-sm font-medium text-gray-700">Vegetarian Item</label>
+                <label className="ml-2 text-sm font-medium text-gray-700">
+                  Vegetarian Item
+                </label>
               </div>
             </div>
 
             <div className="mt-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Short Description *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Short Description *
+              </label>
               <textarea
                 name="description"
                 value={formData.description}
@@ -217,7 +273,9 @@ export default function AddMenu() {
             </div>
 
             <div className="mt-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Detailed Description</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Detailed Description
+              </label>
               <textarea
                 name="longDescription"
                 value={formData.longDescription}
@@ -251,7 +309,9 @@ export default function AddMenu() {
               ) : (
                 <div>
                   <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-600 mb-4">Upload an image of your menu item</p>
+                  <p className="text-gray-600 mb-4">
+                    Upload an image of your menu item
+                  </p>
                   <input
                     type="file"
                     accept="image/*"
@@ -272,14 +332,18 @@ export default function AddMenu() {
 
           {/* Ingredients */}
           <div className="mb-8">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">Ingredients</h2>
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">
+              Ingredients
+            </h2>
             <div className="space-y-3">
               {formData.ingredients.map((ingredient, index) => (
                 <div key={index} className="flex gap-3">
                   <input
                     type="text"
                     value={ingredient}
-                    onChange={(e) => handleIngredientChange(index, e.target.value)}
+                    onChange={(e) =>
+                      handleIngredientChange(index, e.target.value)
+                    }
                     className="flex-1 px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:border-orange-500"
                     placeholder={`Ingredient ${index + 1}`}
                   />
@@ -306,13 +370,15 @@ export default function AddMenu() {
 
           {/* Allergens */}
           <div className="mb-8">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">Allergens</h2>
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">
+              Allergens
+            </h2>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              {allergenOptions.map((allergen) => (
+              {allergenOptions?.map((allergen: any) => (
                 <label key={allergen} className="flex items-center">
                   <input
                     type="checkbox"
-                    checked={formData.allergens.includes(allergen)}
+                    checked={formData?.allergens?.includes(allergen)}
                     onChange={() => handleAllergenChange(allergen)}
                     className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
                   />
@@ -324,10 +390,14 @@ export default function AddMenu() {
 
           {/* Nutritional Information */}
           <div className="mb-8">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">Nutritional Information</h2>
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">
+              Nutritional Information
+            </h2>
             <div className="grid md:grid-cols-4 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Calories</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Calories
+                </label>
                 <input
                   type="number"
                   name="calories"
@@ -340,7 +410,9 @@ export default function AddMenu() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Protein (g)</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Protein (g)
+                </label>
                 <input
                   type="text"
                   name="protein"
@@ -352,7 +424,9 @@ export default function AddMenu() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Carbs (g)</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Carbs (g)
+                </label>
                 <input
                   type="text"
                   name="carbs"
@@ -364,7 +438,9 @@ export default function AddMenu() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Fat (g)</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Fat (g)
+                </label>
                 <input
                   type="text"
                   name="fat"
@@ -380,7 +456,7 @@ export default function AddMenu() {
           {/* Submit Buttons */}
           <div className="flex gap-4 justify-end">
             <Link
-              to="/menu"
+              href="/menu"
               className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
             >
               Cancel
@@ -395,5 +471,5 @@ export default function AddMenu() {
         </form>
       </div>
     </div>
-  )
+  );
 }

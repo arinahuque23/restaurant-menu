@@ -1,12 +1,14 @@
-import Authentication from '@/modules/Authentication/Authentication';
-import React from 'react';
+import Authentication from "@/modules/Authentication/Authentication";
+import { Suspense } from "react";
 
 const login = () => {
-          return (
-                    <>
-                        <Authentication/>      
-                    </>
-          );
+  return (
+    <>
+      <Suspense fallback={<div>Loading...</div>}>
+        <Authentication />
+      </Suspense>
+    </>
+  );
 };
 
 export default login;

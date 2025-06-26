@@ -1,18 +1,19 @@
-"use client"
-import { useState } from "react"
-import { Search, Filter, Star } from "lucide-react"
-import { Link } from "react-router-dom"
+"use client";
+import { useState } from "react";
+import { Search, Filter, Star } from "lucide-react";
+import Link from "next/link";
 
 export default function MenuPage() {
-  const [searchTerm, setSearchTerm] = useState("")
-  const [selectedCategory, setSelectedCategory] = useState("All")
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("All");
 
   // Sample menu data - you'll replace this with API calls later
   const menuItems = [
     {
       id: 1,
       name: "Grilled Salmon",
-      description: "Fresh Atlantic salmon grilled to perfection with herbs and lemon",
+      description:
+        "Fresh Atlantic salmon grilled to perfection with herbs and lemon",
       price: 24.99,
       image: "/placeholder.svg?height=200&width=300",
       category: "Main Course",
@@ -32,7 +33,8 @@ export default function MenuPage() {
     {
       id: 3,
       name: "Vegetable Curry",
-      description: "Mixed vegetables cooked in aromatic spices and coconut milk",
+      description:
+        "Mixed vegetables cooked in aromatic spices and coconut milk",
       price: 14.99,
       image: "/placeholder.svg?height=200&width=300",
       category: "Main Course",
@@ -52,7 +54,8 @@ export default function MenuPage() {
     {
       id: 5,
       name: "Chocolate Lava Cake",
-      description: "Warm chocolate cake with molten center, served with vanilla ice cream",
+      description:
+        "Warm chocolate cake with molten center, served with vanilla ice cream",
       price: 8.99,
       image: "/placeholder.svg?height=200&width=300",
       category: "Desserts",
@@ -69,18 +72,25 @@ export default function MenuPage() {
       rating: 4.4,
       isVegetarian: true,
     },
-  ]
+  ];
 
-  const categories = ["All", "Appetizers", "Main Course", "Desserts", "Beverages"]
+  const categories = [
+    "All",
+    "Appetizers",
+    "Main Course",
+    "Desserts",
+    "Beverages",
+  ];
 
   // Filter menu items based on search and category
   const filteredItems = menuItems.filter((item) => {
     const matchesSearch =
       item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.description.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesCategory = selectedCategory === "All" || item.category === selectedCategory
-    return matchesSearch && matchesCategory
-  })
+      item.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory =
+      selectedCategory === "All" || item.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
 
   return (
     <div className="pt-16 min-h-screen bg-gray-50">
@@ -146,27 +156,35 @@ export default function MenuPage() {
                     {item.category}
                   </span>
                   {item.isVegetarian && (
-                    <span className="bg-green-600 text-white px-3 py-1 rounded-full text-sm font-semibold">Veg</span>
+                    <span className="bg-green-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                      Veg
+                    </span>
                   )}
                 </div>
               </div>
 
               <div className="p-6">
                 <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-xl font-semibold text-gray-800">{item.name}</h3>
+                  <h3 className="text-xl font-semibold text-gray-800">
+                    {item.name}
+                  </h3>
                   <div className="flex items-center">
                     <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                    <span className="text-sm text-gray-600 ml-1">{item.rating}</span>
+                    <span className="text-sm text-gray-600 ml-1">
+                      {item.rating}
+                    </span>
                   </div>
                 </div>
 
                 <p className="text-gray-600 mb-4 text-sm">{item.description}</p>
 
                 <div className="flex items-center justify-between">
-                  <span className="text-2xl font-bold text-orange-600">${item.price}</span>
+                  <span className="text-2xl font-bold text-orange-600">
+                    ${item.price}
+                  </span>
                   <div className="flex gap-2">
                     <Link
-                      to={`/menu/${item.id}`}
+                      href={`/menu/${item.id}`}
                       className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors text-sm"
                     >
                       View Details
@@ -184,14 +202,16 @@ export default function MenuPage() {
         {/* No Results */}
         {filteredItems.length === 0 && (
           <div className="text-center py-12" data-aos="fade-up">
-            <p className="text-gray-600 text-lg">No menu items found matching your search criteria.</p>
+            <p className="text-gray-600 text-lg">
+              No menu items found matching your search criteria.
+            </p>
           </div>
         )}
 
         {/* Add Menu Button */}
         <div className="fixed bottom-8 right-8">
           <Link
-            to="/add-menu"
+            href="/add-menu"
             className="bg-orange-600 text-white p-4 rounded-full shadow-lg hover:bg-orange-700 transition-colors"
           >
             <span className="text-2xl">+</span>
@@ -199,5 +219,5 @@ export default function MenuPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }
